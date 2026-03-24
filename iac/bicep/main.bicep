@@ -129,3 +129,21 @@ output env array=[
   'Storage account name: ${storageAccount.name}'
   'Storage container name: ${blobContainer.name}'
 ]
+
+// Container Registry output - only if user did not provide registry name as input (i.e. they want us to create one for them)
+output registryInfo object = empty(registryName) ? {
+  registryName: registry.name
+  registryLoginServer: registry.properties.loginServer
+} : {
+  registryName: registryName
+  registryLoginServer: registryName
+}
+
+// Azure Open AI resource - only if user did not provide registry name as input (i.e. they want us to create one for them)
+output azureOpenAIInfo object = empty(registryName) ? {
+  azureOpenAIEndpoint: azureOpenAI.properties.endpoint,
+  azureOpenAIKey: listKeys(azureOpenAI.id, '2022-12-01').value[0].key
+} : {
+  azureOpenAIEndpoint: 'N/A - using existing registry, so not creating Azure OpenAI resource',
+  azureOpenAIKey: 'N/A - using existing registry, so not creating Azure OpenAI resource'
+}
