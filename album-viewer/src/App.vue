@@ -1,19 +1,34 @@
 <template>
   <div class="app">
     <header class="header">
-      <h1>🎵 Album Collection</h1>
-      <p>Discover amazing music albums</p>
+      <div class="header-copy">
+        <h1>🎵 {{ messages.headerTitle }}</h1>
+        <p>{{ messages.headerSubtitle }}</p>
+      </div>
+
+      <label class="language-picker" for="language-select">
+        <span>{{ messages.languageLabel }}</span>
+        <select id="language-select" v-model="selectedLanguage">
+          <option
+            v-for="language in availableLanguages"
+            :key="language"
+            :value="language"
+          >
+            {{ messages.languageOptions[language] }}
+          </option>
+        </select>
+      </label>
     </header>
 
     <main class="main">
       <div v-if="loading" class="loading">
         <div class="spinner"></div>
-        <p>Loading albums...</p>
+        <p>{{ messages.loadingAlbums }}</p>
       </div>
 
-      <div v-else-if="error" class="error">
-        <p>{{ error }}</p>
-        <button @click="fetchAlbums" class="retry-btn">Try Again</button>
+      <div v-else-if="hasError" class="error">
+        <p>{{ messages.errorLoadingAlbums }}</p>
+        <button @click="fetchAlbums" class="retry-btn">{{ messages.retryButton }}</button>
       </div>
 
       <div v-else class="albums-grid">
@@ -28,23 +43,30 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import axios from 'axios'
 import AlbumCard from './components/AlbumCard.vue'
 import type { Album } from './types/album'
+import { availableLanguages, currentLanguage, setLanguage, useTranslations, type Language } from './i18n'
 
 const albums = ref<Album[]>([])
 const loading = ref<boolean>(true)
-const error = ref<string | null>(null)
+const hasError = ref<boolean>(false)
+const messages = useTranslations()
+
+const selectedLanguage = computed<Language>({
+  get: () => currentLanguage.value,
+  set: (language) => setLanguage(language),
+})
 
 const fetchAlbums = async (): Promise<void> => {
   try {
     loading.value = true
-    error.value = null
+    hasError.value = false
     const response = await axios.get<Album[]>('/albums')
     albums.value = response.data
   } catch (err) {
-    error.value = 'Failed to load albums. Please make sure the API is running.'
+    hasError.value = true
     console.error('Error fetching albums:', err)
   } finally {
     loading.value = false
@@ -63,9 +85,17 @@ onMounted(() => {
 }
 
 .header {
-  text-align: center;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1.5rem;
   margin-bottom: 3rem;
   color: white;
+}
+
+.header-copy {
+  text-align: center;
+  flex: 1;
 }
 
 .header h1 {
@@ -77,6 +107,29 @@ onMounted(() => {
 .header p {
   font-size: 1.2rem;
   opacity: 0.9;
+}
+
+.language-picker {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  min-width: 10rem;
+  font-weight: 600;
+}
+
+.language-picker select {
+  width: 100%;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  backdrop-filter: blur(8px);
+}
+
+.language-picker select option {
+  color: #1f2937;
 }
 
 .main {
@@ -146,9 +199,23 @@ onMounted(() => {
   .app {
     padding: 1rem;
   }
+
+  .header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .header-copy {
+    text-align: center;
+  }
   
   .header h1 {
     font-size: 2rem;
+  }
+
+  .language-picker {
+    align-self: center;
+    width: min(100%, 16rem);
   }
   
   .albums-grid {

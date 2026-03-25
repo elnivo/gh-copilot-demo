@@ -21,20 +21,22 @@
     </div>
     
     <div class="album-actions">
-      <button class="btn btn-primary">Add to Cart</button>
-      <button class="btn btn-secondary">Preview</button>
+      <button class="btn btn-primary">{{ messages.addToCart }}</button>
+      <button class="btn btn-secondary">{{ messages.preview }}</button>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import type { Album } from '../types/album'
+import { useTranslations } from '../i18n'
 
 interface Props {
   album: Album
 }
 
 defineProps<Props>()
+const messages = useTranslations()
 
 const handleImageError = (event: Event): void => {
   const target = event.target as HTMLImageElement
