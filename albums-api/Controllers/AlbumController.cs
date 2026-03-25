@@ -1,8 +1,5 @@
 ﻿using albums_api.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Net;
-using System.Text.Json;
-using System.Text;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -35,6 +32,13 @@ namespace albums_api.Controllers
             return Ok(album);
 
         }
+
+        [HttpGet("search")]
+        public IActionResult SearchByYear([FromQuery] int year)
+        {
+            var albums = Album.SearchByYear(year);
+            return Ok(albums);
+        }
         
         // function that retrieves albums and sorts them by title, artist or price
         [HttpGet("sorted")]
@@ -58,6 +62,37 @@ namespace albums_api.Controllers
             }
 
             return Ok(albums);
+        }
+
+        [HttpPost]
+        public IActionResult Create([FromBody] AlbumWriteRequest request)
+        {
+            var album = Album.Create(request);
+            return CreatedAtAction(nameof(Get), new { id = album.Id }, album);
+        }
+
+        [HttpPut("{id}")]
+        public IActionResult Update(int id, [FromBody] AlbumWriteRequest request)
+        {
+            var updatedAlbum = Album.Update(id, request);
+            if (updatedAlbum == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(updatedAlbum);
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            var removed = Album.Delete(id);
+            if (!removed)
+            {
+                return NotFound();
+            }
+
+            return NoContent();
         }
     }
 }
