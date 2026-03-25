@@ -1,16 +1,16 @@
 ﻿namespace albums_api.Models
 {
-    public record Album(int Id, string Title, string Artist, int Year, double Price, string Image_url)
+    public record Album(int Id, string Title, Artist Artist, int Year, double Price, string Image_url)
     {
         private static readonly object SyncRoot = new();
         private static readonly List<Album> Albums = new()
         {
-            new Album(1, "You, Me and an App Id", "Daprize", 2020, 10.99, "https://aka.ms/albums-daprlogo"),
-            new Album(2, "Seven Revision Army", "The Blue-Green Stripes", 2021, 13.99, "https://aka.ms/albums-containerappslogo"),
-            new Album(3, "Scale It Up", "KEDA Club", 2022, 13.99, "https://aka.ms/albums-kedalogo"),
-            new Album(4, "Lost in Translation", "MegaDNS", 2020, 12.99, "https://aka.ms/albums-envoylogo"),
-            new Album(5, "Lock Down Your Love", "V is for VNET", 2021, 12.99, "https://aka.ms/albums-vnetlogo"),
-            new Album(6, "Sweet Container O' Mine", "Guns N Probeses", 2022, 14.99, "https://aka.ms/albums-containerappslogo")
+            new Album(1, "You, Me and an App Id", new Artist("Daprize", new DateOnly(1990, 4, 12), "Seattle, USA"), 2020, 10.99, "https://aka.ms/albums-daprlogo"),
+            new Album(2, "Seven Revision Army", new Artist("The Blue-Green Stripes", new DateOnly(1988, 9, 23), "Portland, USA"), 2021, 13.99, "https://aka.ms/albums-containerappslogo"),
+            new Album(3, "Scale It Up", new Artist("KEDA Club", new DateOnly(1992, 2, 15), "Austin, USA"), 2022, 13.99, "https://aka.ms/albums-kedalogo"),
+            new Album(4, "Lost in Translation", new Artist("MegaDNS", new DateOnly(1986, 11, 7), "Dublin, Ireland"), 2020, 12.99, "https://aka.ms/albums-envoylogo"),
+            new Album(5, "Lock Down Your Love", new Artist("V is for VNET", new DateOnly(1991, 6, 30), "London, UK"), 2021, 12.99, "https://aka.ms/albums-vnetlogo"),
+            new Album(6, "Sweet Container O' Mine", new Artist("Guns N Probeses", new DateOnly(1989, 1, 19), "Los Angeles, USA"), 2022, 14.99, "https://aka.ms/albums-containerappslogo")
         };
 
         public static List<Album> GetAll()

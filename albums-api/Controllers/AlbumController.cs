@@ -46,13 +46,13 @@ namespace albums_api.Controllers
         {
             var albums = Album.GetAll();
 
-            switch (sortBy.ToLower())
+            switch (sortBy.ToLowerInvariant())
             {
                 case "title":
                     albums = albums.OrderBy(a => a.Title).ToList();
                     break;
                 case "artist":
-                    albums = albums.OrderBy(a => a.Artist).ToList();
+                    albums = albums.OrderBy(a => a.Artist.Name).ToList();
                     break;
                 case "price":
                     albums = albums.OrderBy(a => a.Price).ToList();
