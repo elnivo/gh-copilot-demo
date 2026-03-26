@@ -21,7 +21,14 @@
     </div>
     
     <div class="album-actions">
-      <button class="btn btn-primary">{{ messages.addToCart }}</button>
+      <button
+        type="button"
+        class="btn btn-primary"
+        data-testid="add-to-cart"
+        @click="emit('addToCart', album)"
+      >
+        {{ messages.addToCart }}
+      </button>
       <button class="btn btn-secondary">{{ messages.preview }}</button>
     </div>
   </div>
@@ -35,7 +42,11 @@ interface Props {
   album: Album
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+const emit = defineEmits<{
+  addToCart: [album: Album]
+}>()
+
 const messages = useTranslations()
 
 const handleImageError = (event: Event): void => {

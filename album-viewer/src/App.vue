@@ -6,19 +6,41 @@
         <p>{{ messages.headerSubtitle }}</p>
       </div>
 
-      <label class="language-picker" for="language-select">
-        <span>{{ messages.languageLabel }}</span>
-        <select id="language-select" v-model="selectedLanguage">
-          <option
-            v-for="language in availableLanguages"
-            :key="language"
-            :value="language"
-          >
-            {{ messages.languageOptions[language] }}
-          </option>
-        </select>
-      </label>
+      <div class="header-actions">
+        <button
+          type="button"
+          class="cart-button"
+          data-testid="cart-toggle"
+          :aria-label="messages.cartLabel"
+          @click="toggleCart"
+        >
+          <span class="cart-button__icon">🛒</span>
+          <span class="cart-button__label">{{ messages.cartLabel }}</span>
+          <span class="cart-button__count" data-testid="cart-count">{{ itemCount }}</span>
+        </button>
+
+        <label class="language-picker" for="language-select">
+          <span>{{ messages.languageLabel }}</span>
+          <select id="language-select" v-model="selectedLanguage">
+            <option
+              v-for="language in availableLanguages"
+              :key="language"
+              :value="language"
+            >
+              {{ messages.languageOptions[language] }}
+            </option>
+          </select>
+        </label>
+      </div>
     </header>
+
+    <CartPanel
+      :is-open="isCartOpen"
+      :items="cartItems"
+      :total-price="totalPrice"
+      @close="isCartOpen = false"
+      @remove="removeAlbum"
+    />
 
     <main class="main">
       <div v-if="loading" class="loading">
@@ -36,6 +58,7 @@
           v-for="album in albums" 
           :key="album.id" 
           :album="album" 
+          @add-to-cart="handleAddToCart"
         />
       </div>
     </main>
@@ -46,18 +69,30 @@
 import { computed, onMounted, ref } from 'vue'
 import axios from 'axios'
 import AlbumCard from './components/AlbumCard.vue'
+import CartPanel from './components/CartPanel.vue'
 import type { Album } from './types/album'
+import { useCart } from './composables/useCart'
 import { availableLanguages, currentLanguage, setLanguage, useTranslations, type Language } from './i18n'
 
 const albums = ref<Album[]>([])
 const loading = ref<boolean>(true)
 const hasError = ref<boolean>(false)
+const isCartOpen = ref<boolean>(false)
 const messages = useTranslations()
+const { addAlbum, itemCount, items: cartItems, removeAlbum, totalPrice } = useCart()
 
 const selectedLanguage = computed<Language>({
   get: () => currentLanguage.value,
   set: (language) => setLanguage(language),
 })
+
+const handleAddToCart = (album: Album): void => {
+  addAlbum(album)
+}
+
+const toggleCart = (): void => {
+  isCartOpen.value = !isCartOpen.value
+}
 
 const fetchAlbums = async (): Promise<void> => {
   try {
@@ -98,6 +133,12 @@ onMounted(() => {
   flex: 1;
 }
 
+.header-actions {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
 .header h1 {
   font-size: 3rem;
   margin-bottom: 0.5rem;
@@ -107,6 +148,40 @@ onMounted(() => {
 .header p {
   font-size: 1.2rem;
   opacity: 0.9;
+}
+
+.cart-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.7rem 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  color: white;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+
+.cart-button__icon {
+  font-size: 1.15rem;
+}
+
+.cart-button__label {
+  font-weight: 600;
+}
+
+.cart-button__count {
+  min-width: 1.85rem;
+  height: 1.85rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 0.45rem;
+  border-radius: 999px;
+  background: white;
+  color: #384c87;
+  font-weight: 700;
 }
 
 .language-picker {
@@ -205,6 +280,11 @@ onMounted(() => {
     align-items: stretch;
   }
 
+  .header-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+
   .header-copy {
     text-align: center;
   }
@@ -214,7 +294,11 @@ onMounted(() => {
   }
 
   .language-picker {
-    align-self: center;
+    width: min(100%, 16rem);
+  }
+
+  .cart-button {
+    justify-content: center;
     width: min(100%, 16rem);
   }
   
