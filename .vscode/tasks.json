@@ -33,9 +33,19 @@
             "watch",
             "run",
             "--project",
-            "${workspaceFolder}/gh-copilot-demo.sln"
+            "${workspaceFolder}/albums-api/albums-api.csproj",
+            "--launch-profile",
+            "http"
         ],
-        "problemMatcher": "$msCompile"
+        "isBackground": true,
+        "problemMatcher": {
+            "base": "$msCompile",
+            "background": {
+                "activeOnStart": true,
+                "beginsPattern": "^dotnet watch",
+                "endsPattern": "Now listening on:\\s+http://localhost:3000"
+            }
+        }
     },
     {
         "label": "npm: install - album-viewer",
